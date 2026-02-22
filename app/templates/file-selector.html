@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Reviewer Intense - Home</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .home-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--accent);
+        }
+        .btn-new {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .btn-new:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
+        }
+        .knowledge-list {
+            display: grid;
+            gap: 16px;
+        }
+        .knowledge-item {
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .knowledge-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(187, 134, 252, 0.1);
+        }
+        .knowledge-info {
+            flex: 1;
+        }
+        .knowledge-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            word-break: break-word;
+            margin-bottom: 5px;
+        }
+        .knowledge-status {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .knowledge-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-edit, .btn-review {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        .btn-edit {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-edit:hover {
+            background: var(--border);
+        }
+        .btn-review {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-review:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
+        }
+        .no-files {
+            text-align: center;
+            padding: 60px 40px;
+            color: #888;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+        }
+        .no-files h3 {
+            margin: 0 0 15px 0;
+            color: var(--text);
+        }
+        .no-files p {
+            margin: 0 0 25px 0;
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-new {
+                align-self: stretch;
+                text-align: center;
+            }
+            .knowledge-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            .knowledge-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            .btn-edit, .btn-review {
+                flex: 1;
+                text-align: center;
+            }
+        }
+        @media (max-width: 300px) {
+            .home-container {
+                padding: 10px;
+            }
+            .knowledge-item {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <div class="header">
+            <h1>📚 Knowledge Bases</h1>
+            <button class="btn-new" onclick="createNewKnowledgeBase()">+ New Knowledge Base</button>
+        </div>
+
+        <div class="knowledge-list" id="knowledge-list">
+            <!-- Knowledge base items will be populated here -->
+        </div>
+        <div id="no-files" class="no-files" style="display: none;">
+            <h3>No knowledge bases yet</h3>
+            <p>Create your first knowledge base to start reviewing.</p>
+            <button class="btn-new" onclick="createNewKnowledgeBase()">+ Create First Knowledge Base</button>
+        </div>
+    </div>
+
+    <script>
+        // Load knowledge base list from API
+        async function loadKnowledgeList() {
+            try {
+                const res = await fetch('/api/files');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                if (data.files.length === 0) {
+                    document.getElementById('no-files').style.display = 'block';
+                    return;
+                }
+
+                // Sort files descending by name
+                const sortedFiles = data.files.sort((a, b) => b.name.localeCompare(a.name));
+
+                const knowledgeList = document.getElementById('knowledge-list');
+                knowledgeList.innerHTML = '';
+
+                sortedFiles.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'knowledge-item';
+                    item.innerHTML = `
+                        <div class="knowledge-info">
+                            <div class="knowledge-name">${escapeHtml(file.name)}</div>
+                            <div class="knowledge-status">${file.has_due_today ? 'Has items to review' : 'All items mastered'}</div>
+                        </div>
+                        <div class="knowledge-actions">
+                            <button class="btn-edit" onclick="editKnowledgeBase('${escapeHtml(file.name)}')">Edit</button>
+                            <button class="btn-review" onclick="reviewKnowledgeBase('${escapeHtml(file.name)}')">Review</button>
+                        </div>
+                    `;
+                    knowledgeList.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Failed to load knowledge list:', error);
+                document.getElementById('no-files').style.display = 'block';
+                document.getElementById('no-files').innerHTML = `
+                    <h3>Error loading knowledge bases</h3>
+                    <p>${escapeHtml(error.message)}</p>
+                    <button class="btn-new" onclick="loadKnowledgeList()">Retry</button>
+                `;
+            }
+        }
+
+        function reviewKnowledgeBase(fileName) {
+            // Redirect to review page with file parameter
+            window.location.href = `/review?file=${encodeURIComponent(fileName)}`;
+        }
+
+        function editKnowledgeBase(fileName) {
+            // Redirect to knowledge base editor
+            window.location.href = `/edit?file=${encodeURIComponent(fileName)}`;
+        }
+
+        function createNewKnowledgeBase() {
+            // Redirect to new knowledge base creation page
+            window.location.href = '/new';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadKnowledgeList);
+    </script>
+</body>
+</html>

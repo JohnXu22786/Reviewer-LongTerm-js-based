@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Review Report - Reviewer Intense</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--accent);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-export {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-export:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .btn-back {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            background: var(--border);
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: rgba(187, 134, 252, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+            user-select: none;
+        }
+        tr:hover {
+            background: rgba(187, 134, 252, 0.05);
+        }
+        .id-col {
+            width: 80px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .question-col {
+            max-width: 500px;
+            word-break: break-word;
+        }
+        .count-col {
+            width: 100px;
+            text-align: center;
+        }
+        .error-count {
+            color: var(--forgot);
+            font-weight: bold;
+        }
+        .correct-count {
+            color: var(--remember);
+            font-weight: bold;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        .file-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+        .file-info strong {
+            color: var(--accent);
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-group {
+                width: 100%;
+            }
+            .btn-export, .btn-back {
+                flex: 1;
+            }
+        }
+
+    </style>
+    <script src="/static/js/script.js"></script>
+</head>
+<body>
+    <div class="report-container">
+        <div class="header">
+            <h1>📊 Review Report</h1>
+            <div class="btn-group">
+                <button class="btn-back" onclick="goBack()">← Home</button>
+                <button class="btn-export" onclick="showExportMenu()">Export Report</button>
+            </div>
+        </div>
+
+        <div class="file-info">
+            File: <strong id="file-name">Loading...</strong> |
+            Total Questions: <strong id="total-count">0</strong> |
+            Mastered: <strong id="mastered-count">0</strong> |
+            Review Sessions: <strong id="review-sessions">0</strong>
+        </div>
+
+        <div class="table-container">
+            <table id="report-table">
+                <thead>
+                    <tr>
+                        <th class="id-col">ID</th>
+                        <th class="question-col">Question</th>
+                        <th class="count-col">Wrong Count</th>
+                        <th class="count-col">Correct Count</th>
+                        <th class="count-col">Review Count</th>
+                        <th class="count-col">Mastered</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+            <div id="no-data" class="no-data" style="display: none;">
+                No review data found for this file. Please complete some reviews first.
+            </div>
+        </div>
+    </div>
+
+    <!-- Export menu modal -->
+    <div id="exportModal" class="export-modal-overlay">
+        <div class="export-modal">
+            <div class="export-modal-header">
+                <h3 class="export-modal-title">Export Report</h3>
+                <button class="export-modal-close" onclick="hideExportMenu(event)">×</button>
+            </div>
+            <div class="export-options">
+                <button class="export-option" onclick="exportHtml(event)">HTML</button>
+                <button class="export-option" onclick="exportTxt(event)">TXT</button>
+                <button class="export-option" onclick="exportCsv(event)">CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize report on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = loadReportData();
+            if (data) {
+                displayReport(data);
+            }
+        });
+    </script>
+</body>
+</html>

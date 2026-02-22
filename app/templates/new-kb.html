@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Create New Knowledge Base - Reviewer Intense</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .create-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--accent);
+        }
+        .btn-back {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            background: var(--border);
+        }
+        .form-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        .form-title {
+            margin: 0 0 20px 0;
+            color: var(--text);
+            font-size: 1.3rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+        }
+        .form-help {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .btn-create {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.2);
+        }
+        .btn-create:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(126, 87, 194, 0.3);
+        }
+        .btn-create:active {
+            transform: translateY(0);
+        }
+        .btn-create:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .error-message {
+            color: #d95e39;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(217, 94, 57, 0.1);
+            display: none;
+        }
+        .success-message {
+            color: #20897c;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(32, 137, 124, 0.1);
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-back {
+                align-self: stretch;
+                text-align: center;
+            }
+            .form-section {
+                padding: 20px;
+            }
+        }
+        @media (max-width: 300px) {
+            .create-container {
+                padding: 10px;
+            }
+            .form-section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <div class="header">
+            <h1>📝 Create New Knowledge Base</h1>
+            <button class="btn-back" onclick="goBack()">← Back</button>
+        </div>
+
+        <div class="form-section">
+            <h2 class="form-title">Basic Information</h2>
+
+            <div class="form-group">
+                <label class="form-label" for="kb-name">Knowledge Base Name</label>
+                <input type="text" id="kb-name" class="form-input" placeholder="e.g., programming-concepts, biology-101" autocomplete="off">
+                <div class="form-help">Only letters, numbers, hyphens, and underscores. The .json extension will be added automatically.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="kb-description">Description (Optional)</label>
+                <textarea id="kb-description" class="form-input" rows="3" placeholder="Brief description of what this knowledge base contains..."></textarea>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <button id="create-btn" class="btn-create" onclick="createKnowledgeBase()">Create Knowledge Base</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function showError(message) {
+            const errorElem = document.getElementById('error-message');
+            errorElem.textContent = message;
+            errorElem.style.display = 'block';
+
+            const successElem = document.getElementById('success-message');
+            successElem.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successElem = document.getElementById('success-message');
+            successElem.textContent = message;
+            successElem.style.display = 'block';
+
+            const errorElem = document.getElementById('error-message');
+            errorElem.style.display = 'none';
+        }
+
+        async function createKnowledgeBase() {
+            const createBtn = document.getElementById('create-btn');
+            const originalText = createBtn.textContent;
+
+            try {
+                // Disable button and show loading
+                createBtn.disabled = true;
+                createBtn.textContent = 'Creating...';
+
+                const kbName = document.getElementById('kb-name').value.trim();
+
+                if (!kbName) {
+                    showError('Please enter a knowledge base name.');
+                    return;
+                }
+
+                // Validate filename
+                const validName = /^[a-zA-Z0-9_-]+$/.test(kbName);
+                if (!validName) {
+                    showError('Name can only contain letters, numbers, hyphens, and underscores.');
+                    return;
+                }
+
+                const fileName = kbName.endsWith('.json') ? kbName : kbName + '.json';
+
+                // Check if file already exists
+                const filesRes = await fetch('/api/files');
+                if (!filesRes.ok) throw new Error('Failed to check existing files');
+
+                const filesData = await filesRes.json();
+                const fileExists = filesData.files.find(f => f.name === fileName);
+
+                if (fileExists) {
+                    showError(`A knowledge base named "${fileName}" already exists.`);
+                    return;
+                }
+
+                // Create empty knowledge base file
+                const createRes = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        file_name: fileName,
+                        description: document.getElementById('kb-description').value.trim()
+                    })
+                });
+
+                if (!createRes.ok) {
+                    const errorData = await createRes.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${createRes.status}`);
+                }
+
+                showSuccess(`Knowledge base "${fileName}" created successfully! Redirecting to editor...`);
+
+                // Redirect to editor after a short delay
+                setTimeout(() => {
+                    window.location.href = `/edit?file=${encodeURIComponent(fileName)}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Creation failed:', error);
+                showError(`Failed to create knowledge base: ${error.message}`);
+            } finally {
+                createBtn.disabled = false;
+                createBtn.textContent = originalText;
+            }
+        }
+
+        // Allow creating with Enter key in name field
+        document.getElementById('kb-name').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                createKnowledgeBase();
+            }
+        });
+
+        // Focus on name field on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('kb-name').focus();
+        });
+    </script>
+</body>
+</html>
